@@ -3,16 +3,23 @@ function mand_plugin_notice() {
     global $post;
     if (get_option('display_mand_admin_message')) 
     { // check whether to display the message
-		add_action('admin_notices' , create_function( '', "echo '" . get_option('mand_admin_message') . "';" ) );
+
+		
+    	$html = '<div id="message" class="updated below-h2"><p>'.get_option('mand_message_custom').'</p></div>';
+		//could not create seperate function as wordpress was not allowing to display message in the post .
+		add_action('admin_notices' , create_function( '', "echo '" . $html . "';" ) );		
+		
 		$all_empty_elements = get_option('mand_elements');
 		$all_empty_elements = split(',',$all_empty_elements);
 		$selector = 1;
+		
 		foreach($all_empty_elements as $elements)
 		{
 			$elements = split(':',$elements);    	
 			$js_update_css .= 'jQuery("input[name='.$elements[0].']").css(cssObj);';    
 			$js_update_css .= 'jQuery("#'.$elements[1].'").css(cssObj);';    
 		}
+		
 		 ?>
 		    <script>
 		        jQuery(document).ready(function(){
@@ -34,7 +41,10 @@ function mand_fields ($data , $postarr) {
     if( !check_elements() )
         {
 			$data['post_status'] = 'draft';
-			update_option('mand_admin_message', 'Did not set the following fields');
+			$get_message = get_option('mand_message_custom');
+			if ( empty( $get_message ) )
+				update_option('mand_message_custom', 'The Fields Marked In Red Are Mandatory');	
+							
 			update_option('display_mand_admin_message', 1); // turn on the message
         }
         else
